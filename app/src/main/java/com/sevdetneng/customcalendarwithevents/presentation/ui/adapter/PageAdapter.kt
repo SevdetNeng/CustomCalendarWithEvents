@@ -1,7 +1,6 @@
 package com.sevdetneng.customcalendarwithevents.presentation.ui.adapter
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -96,82 +95,35 @@ class PageAdapter(val context: Context, val events: List<Date>,val onItemClick :
     }
 
     fun daysInMonthList(date: Date): List<CalendarDay> {
-
         val daysInMonthList: MutableList<CalendarDay> = mutableListOf()
         val calendar = Calendar.getInstance()
         calendar.time = date
         calendar.set(Calendar.DAY_OF_MONTH, 1)
-        val month = calendar.get(Calendar.MONTH)
-        val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) - 1
-        when (dayOfWeek) {
-            // FILL PREVIOUS MONTH
-            0 -> {
+        val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) - 2
+        when(dayOfWeek){
+            -1 -> {
                 // SUNDAY
-                val lastMonthCalendar = Calendar.getInstance()
-                lastMonthCalendar.time = calendar.time
-                lastMonthCalendar.add(Calendar.MONTH, -1)
-                val lastMonthCalendarLastDay =
-                    lastMonthCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
-                lastMonthCalendar.set(Calendar.DAY_OF_MONTH, lastMonthCalendarLastDay - 5)
-                for (i in 1..6) {
-                    daysInMonthList.add(
-                        CalendarDay(
-                            lastMonthCalendar.get(Calendar.DAY_OF_MONTH).toString(),
-                            lastMonthCalendar.time
-                        )
-                    )
-                    lastMonthCalendar.add(Calendar.DATE, 1)
+                calendar.add(Calendar.DAY_OF_MONTH,-6)
+                while(daysInMonthList.size < 42){
+                    daysInMonthList.add(CalendarDay(
+                        calendar.get(Calendar.DAY_OF_MONTH).toString(),
+                        calendar.time
+                    ))
+                    calendar.add(Calendar.DAY_OF_MONTH,1)
                 }
             }
-
             else -> {
                 // OTHER DAYS
-                val lastMonthCalendar = Calendar.getInstance()
-                lastMonthCalendar.time = calendar.time
-                lastMonthCalendar.add(Calendar.MONTH, -1)
-                val lastMonthCalendarLastDay =
-                    lastMonthCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
-                lastMonthCalendar.set(Calendar.DAY_OF_MONTH, lastMonthCalendarLastDay)
-                for (i in 2..dayOfWeek) {
-                    lastMonthCalendar.add(Calendar.DATE, -(dayOfWeek - i))
-                    daysInMonthList.add(
-                        CalendarDay(
-                            lastMonthCalendar.get(Calendar.DAY_OF_MONTH).toString(),
-                            lastMonthCalendar.time
-                        )
-                    )
-                    lastMonthCalendar.time = calendar.time
-                    lastMonthCalendar.add(Calendar.MONTH, -1)
-                    lastMonthCalendar.set(Calendar.DAY_OF_MONTH, lastMonthCalendarLastDay)
+                calendar.add(Calendar.DAY_OF_MONTH,-dayOfWeek)
+                while(daysInMonthList.size < 42){
+                    daysInMonthList.add(CalendarDay(
+                        calendar.get(Calendar.DAY_OF_MONTH).toString(),
+                        calendar.time
+                    ))
+                    calendar.add(Calendar.DAY_OF_MONTH,1)
                 }
             }
         }
-        while (month == calendar.get(Calendar.MONTH)) {
-            // FILL THE DAYS OF MONTH
-            daysInMonthList.add(
-                CalendarDay(
-                    calendar.get(Calendar.DAY_OF_MONTH).toString(),
-                    calendar.time
-                )
-            )
-            calendar.add(Calendar.DATE, 1)
-        }
-        val nextMonthCalendar = Calendar.getInstance()
-        nextMonthCalendar.time = calendar.time
-        nextMonthCalendar.add(Calendar.MONTH, 1)
-        nextMonthCalendar.set(Calendar.DAY_OF_MONTH, 1)
-        while (daysInMonthList.size < 42) {
-            // FILL NEXT MONTH
-            daysInMonthList.add(
-                CalendarDay(
-                    nextMonthCalendar.get(Calendar.DAY_OF_MONTH).toString(),
-                    nextMonthCalendar.time
-
-                )
-            )
-            nextMonthCalendar.add(Calendar.DATE, 1)
-        }
-        Log.d("daylist", daysInMonthList.toString())
         return daysInMonthList
     }
 

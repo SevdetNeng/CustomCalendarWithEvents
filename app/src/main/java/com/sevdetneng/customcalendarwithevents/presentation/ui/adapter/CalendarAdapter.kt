@@ -23,31 +23,29 @@ class CalendarAdapter(
     val currentMonth: Date,
     val onItemClick: (CalendarDay) -> Unit
 ) : ListAdapter<CalendarDay, CalendarAdapter.ViewHolder>(CalendarDiffCallBack()) {
-    private var selectedItem = -1
-    private var lastSelectedItem = -1
 
     inner class ViewHolder(private val binding: CalendarCellBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(date: CalendarDay) {
 
-            binding.root.setOnClickListener {
-                if (isInTheSelectedMonth(currentMonth, date.date)) {
+
+            if (isInTheSelectedMonth(date.date, currentMonth)) {
+
+                binding.root.setOnClickListener {
                     // only click current month days
                     onItemClick(date)
                 }
-            }
-            if (isInTheSelectedMonth(date.date, currentMonth)) {
-                // if date is inside the selected month, set background resource
 
                 val calendar = Calendar.getInstance()
-                if (isDatesEqual(calendar.time, date.date)) {
+                // if date is inside the selected month, set background resource
+                if (areDatesEqual(calendar.time, date.date)) {
                     // Today
                     binding.backgroundConstraint.background =
                         ContextCompat.getDrawable(context, R.drawable.calendar_cell_today)
                 } else {
                     var isEventDay = false
                     events.forEach {
-                        if (isDatesEqual(it, date.date)) {
+                        if (areDatesEqual(it, date.date)) {
                             isEventDay = true
                             return@forEach
                         }
@@ -70,12 +68,12 @@ class CalendarAdapter(
             }
             binding.textView.text = date.dayOfMonth
             if (selectedDate != null) {
-                binding.backgroundConstraint.isSelected = isDatesEqual(selectedDate, date.date)
+                binding.backgroundConstraint.isSelected = areDatesEqual(selectedDate, date.date)
             }
         }
     }
 
-    fun isDatesEqual(dateFirst: Date, dateSecond: Date): Boolean {
+    fun areDatesEqual(dateFirst: Date, dateSecond: Date): Boolean {
         val sdf = SimpleDateFormat("yyyyMMdd", Locale.getDefault())
         return sdf.format(dateFirst).equals(sdf.format(dateSecond))
     }
@@ -89,13 +87,6 @@ class CalendarAdapter(
         val binding =
             CalendarCellBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ViewHolder(binding)
-    }
-
-    override fun submitList(list: List<CalendarDay>?) {
-        // if next or previous month selected, then reset selected day states
-        lastSelectedItem = -1
-        selectedItem = -1
-        super.submitList(list)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
